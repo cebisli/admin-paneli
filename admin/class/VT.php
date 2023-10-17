@@ -8,6 +8,10 @@ class VT extends Upload{
     
     protected static $db;
 
+    public static $table = "";
+    public static $select = "*";
+
+
     function __construct()
     {
         self::__connect();
@@ -23,6 +27,20 @@ class VT extends Upload{
             return self::view("connection", $data);
             exit();
         }
+    }
+
+
+    public static function table($tableName)
+    {
+        self::$table = $tableName;
+        self::$select = "*";
+        return new self;
+    }
+
+    public static function select($coloms)
+    {
+        self::$select = (is_array($coloms)) ? implode(',', $coloms) : $coloms;        
+        return new self;
     }
 
     public static function view($pageName, $error)
