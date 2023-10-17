@@ -10,6 +10,7 @@ class VT extends Upload{
 
     public static $table = "";
     public static $select = "*";
+    
     public static $whereRawKey;
     public static $whereRawKeyVal;
 
