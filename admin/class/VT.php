@@ -13,6 +13,9 @@ class VT extends Upload{
     public static $whereRawKey;
     public static $whereRawKeyVal;
 
+    public static $whereKey;
+    public static $whereVal = array();
+
 
     function __construct()
     {
@@ -37,6 +40,8 @@ class VT extends Upload{
         self::$select = "*";
         self::$whereRawKey = null;
         self::$whereRawKeyVal = null;
+        self::$whereKey = null;
+        self::$whereVal = [];
         return new self;
     }
 
@@ -53,8 +58,29 @@ class VT extends Upload{
         return new self;
     }
 
-    public static function where($coloms1, $coloms2 = null, $coloms3)
+    public static function where($coloms1, $coloms2 = null, $coloms3 = null)
     {
+        if (is_array($coloms1))
+        {
+            $keyList = [];
+            foreach ($coloms1 as $key=>$item)
+            {
+                self::$whereVal[] = $item;
+                $keyList[] = $key;
+            }
+            self::$whereKey = implode("=? AND ", $keyList)."=?";
+        }
+        else if ($coloms2 != null && $coloms3 == null)
+        {
+            self::$whereKey = $coloms1 .'=?';
+            self::$whereVal[] = $coloms2;
+        }
+        else if ($coloms2 != null && $coloms3 != null)
+        {
+            self::$whereKey = $coloms1.$coloms2.'?';
+            self::$whereVal[] = $coloms3;
+        }
+
         return new self;
     }
 

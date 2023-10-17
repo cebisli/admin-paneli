@@ -2,7 +2,9 @@
 include_once('class/fl.php');
 include_once('class/VT.php');
 
+$abc = VT::table("carporate")->where(['title'=>'ikram','description'=>'aciklama','id'=>5]);
 
-VT::table("carporate")->select(['title','description','id'])->whereRaw("title like '%?%' AND description=?",['a', 'bilgi']);
-echo VT::$select;
+$abc = VT::table("carporate")->where("id",'<>',3);
+
+var_dump(VT::$whereKey);
 ?>
