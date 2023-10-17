@@ -16,7 +16,7 @@ class VT extends Upload{
 
     
     public static $whereRawKey;
-    public static $whereRawKeyVal;
+    public static $whereRawVal;
 
     public static $whereKey;
     public static $whereVal = array();
@@ -44,7 +44,7 @@ class VT extends Upload{
         self::$table = $tableName;
         self::$select = "*";
         self::$whereRawKey = null;
-        self::$whereRawKeyVal = null;
+        self::$whereRawVal = null;
         self::$whereKey = null;
         self::$whereVal = [];
         self::$orderBy = null;
@@ -62,7 +62,7 @@ class VT extends Upload{
     public static function whereRaw($whereRaw, $whereRawVal)
     {
         self::$whereRawKey = "(". $whereRaw .")";
-        self::$whereRawKeyVal = $whereRawVal;
+        self::$whereRawVal = $whereRawVal;
         return new self;
     }
 
@@ -113,6 +113,58 @@ class VT extends Upload{
     {
         self::$join .= "INNER JOIN ".$tableName." ON ".self::$table.'.'.$thisColums." = ".$tableName.'.'.$joinColums;
         return new self;
+    }
+
+    public static function Get()
+    {
+        $sql = "SELECT ".self::$select." FROM ".self::$table." ";
+        $sql .= (!empty(self::$join)) ? self::$join : '';
+
+        $where = "";
+        if (! empty(self::$whereKey) && ! empty(self::$whereRawKey))
+        {
+            $sql .= " WHERE ".self::$whereKey. " AND ".self::$whereRawKey. " ";
+            $where = array_merge(self::$whereVal, self::$whereRawVal);
+        }
+        else
+        {
+            if (! empty(self::$whereKey))
+            {
+                $sql .= " WHERE ".self::$whereKey. " ";
+                $where = self::$whereVal;
+            }
+            else if (! empty(self::$whereRawKey))
+            {
+                $sql .= " WHERE ".self::$whereRawKey. " ";
+                $where = self::$whereRawVal;
+            }
+        }
+
+        $sql .= (!empty(self::$orderBy)) ? " ORDER BY ".self::$orderBy." " : "";
+        $sql .= (!empty(self::$limit)) ? " LIMIT ".self::$limit : "";
+
+        if ($where != null)
+        {
+            $Entity = self::$db->prepare($sql);
+            $Sync = $Entity->execute($where);
+        }
+        else
+            $Entity = self::$db->query($sql);
+        
+        $result =  $Entity->fetchAll(PDO::FETCH_ASSOC);   
+        if ($result != false)
+        {
+            $data = [];
+            foreach ($result as $item)            
+                $data[] = (object) $item;
+
+            if (count($data) > 1)
+                return $data;
+            else
+                return $data[0];
+        }
+        else
+            return false;
     }
 
     public static function view($pageName, $error)
