@@ -10,6 +10,10 @@ class VT extends Upload{
 
     public static $table = "";
     public static $select = "*";
+    public static $orderBy = null;
+    public static $limit = null;
+    public static $join = "";
+
     
     public static $whereRawKey;
     public static $whereRawKeyVal;
@@ -43,6 +47,9 @@ class VT extends Upload{
         self::$whereRawKeyVal = null;
         self::$whereKey = null;
         self::$whereVal = [];
+        self::$orderBy = null;
+        self::$limit = null;
+        self::$join = "";
         return new self;
     }
 
@@ -82,6 +89,29 @@ class VT extends Upload{
             self::$whereVal[] = $coloms3;
         }
 
+        return new self;
+    }
+
+    public static function orderBy($parameter)
+    {
+        $str = $parameter[0]." ";
+        if (count($parameter) > 1)
+            $str .= $parameter[1];
+        else
+            $str .= "ASC";
+        self::$orderBy = $str;
+        return new self;
+    }
+
+    public static function limit($start, $end = null)
+    {
+        self::$limit = $start. (($end != null) ? ",".$end : "");
+        return new self;
+    }
+
+    public static function join($tableName, $thisColums, $joinColums)
+    {
+        self::$join .= "INNER JOIN ".$tableName." ON ".self::$table.'.'.$thisColums." = ".$tableName.'.'.$joinColums;
         return new self;
     }
 
