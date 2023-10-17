@@ -10,6 +10,8 @@ class VT extends Upload{
 
     public static $table = "";
     public static $select = "*";
+    public static $whereRawKey;
+    public static $whereRawKeyVal;
 
 
     function __construct()
@@ -29,17 +31,30 @@ class VT extends Upload{
         }
     }
 
-
     public static function table($tableName)
     {
         self::$table = $tableName;
         self::$select = "*";
+        self::$whereRawKey = null;
+        self::$whereRawKeyVal = null;
         return new self;
     }
 
     public static function select($coloms)
     {
         self::$select = (is_array($coloms)) ? implode(',', $coloms) : $coloms;        
+        return new self;
+    }
+
+    public static function whereRaw($whereRaw, $whereRawVal)
+    {
+        self::$whereRawKey = "(". $whereRaw .")";
+        self::$whereRawKeyVal = $whereRawVal;
+        return new self;
+    }
+
+    public static function where($coloms1, $coloms2 = null, $coloms3)
+    {
         return new self;
     }
 
