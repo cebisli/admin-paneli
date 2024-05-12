@@ -118,51 +118,57 @@ class VT extends Upload{
     public static function Get()
     {
         $sql = "SELECT ".self::$select." FROM ".self::$table." ";
-        $sql .= (!empty(self::$join)) ? self::$join : '';
-
-        $where = "";
-        if (! empty(self::$whereKey) && ! empty(self::$whereRawKey))
+        $sql .= !empty(self::$join) ? self::$join : '';
+        
+        $where = null;
+        if (!empty(self::$whereKey) && !empty(self::$whereRawKey))
         {
-            $sql .= " WHERE ".self::$whereKey. " AND ".self::$whereRawKey. " ";
+            $sql .= "where " .self::$whereKey. " AND ".self::$whereRawKey; 
             $where = array_merge(self::$whereVal, self::$whereRawVal);
         }
         else
         {
-            if (! empty(self::$whereKey))
+            if (!empty(self::$whereKey))
             {
-                $sql .= " WHERE ".self::$whereKey. " ";
+                $sql .= "where " .self::$whereKey. " "; 
                 $where = self::$whereVal;
             }
-            else if (! empty(self::$whereRawKey))
+            
+            if (!empty(self::$whereRawKey))
             {
-                $sql .= " WHERE ".self::$whereRawKey. " ";
+                $sql .= "where " .self::$whereRawKey. " "; 
                 $where = self::$whereRawVal;
             }
         }
-
-        $sql .= (!empty(self::$orderBy)) ? " ORDER BY ".self::$orderBy." " : "";
-        $sql .= (!empty(self::$limit)) ? " LIMIT ".self::$limit : "";
-
+        
+        $sql .= !empty(self::$orderBy) ? "ORDER BY ".self::$orderBy." " : '';
+        $sql .= !empty(self::$limit) ? "LIMIT ".self::$limit : '';
+        
         if ($where != null)
         {
-            $Entity = self::$db->prepare($sql);
-            $Sync = $Entity->execute($where);
+            $entity = self::$conn->prepare($sql);
+            $sync = $entity->execute($where);
         }
         else
-            $Entity = self::$db->query($sql);
+            $entity = self::$conn->query($sql);
         
-        $result =  $Entity->fetchAll(PDO::FETCH_ASSOC);   
-        if ($result != false)
+        $result = $entity->fetchAll(PDO::FETCH_ASSOC);
+        if ($result)
         {
             $data = [];
             foreach ($result as $item)            
-                $data[] = (object) $item;
-
-            if (count($data) > 1)
-                return $data;
-            else
-                return $data[0];
+                $data[] = (Object) $item;            
+            return $data;
         }
+        else
+            return false;
+    }
+    
+    public static function GetFirst()
+    {
+        $entity = self::Get();
+        if ($entity)
+            return $entity[0];
         else
             return false;
     }
